@@ -106,7 +106,7 @@ win_change()
 static void
 process_kbd(int s, struct packet *pkt)
 {
-	/* Suspend? */
+	/* Suspend? */ // Ctrl+Z 
 	if (!no_suspend && (pkt->u.buf[0] == cur_term.c_cc[VSUSP]))
 	{
 		/* Tell the master that we are suspending. */
@@ -130,11 +130,52 @@ process_kbd(int s, struct packet *pkt)
 		write(s, pkt, sizeof(struct packet));
 		return;
 	}
-	/* Detach char? */
+	/* Detach char? */  // Ctrl+\,  
 	else if (pkt->u.buf[0] == detach_char)
 	{
-		printf(EOS "\r\n[detached]\r\n");
+		printf("\r\n--- detach pre2---\r\n");
+		// printf(EOS "\r\n[detached]\r\n");
+		/*
+		puts(
+			"\e[?1002l" //mouse disable
+			"\e[?1006l" // --- unknown
+
+			"\e(B" //us charset
+			"\e[m" //normal char att
+			"\e[?25h" //show cursor
+			"\e[?1l"  //normal cursor key
+			"\e>"     //normal keypad
+
+			"\e[?1049l" //normal screen
+			"\e[23;0;0t \e[23;0t" // --- unknown
+			"\e[?2004l" //normal paste
+			"\e[?1004l" // --- unknown
+			"\e[?25h" //show cursor
+		);
+		*/
+
+/*
+
+^Z^Y^X  1a 19 18
+ Z Y Z  5a 59 58
+
+^A^B^C  01 02 03
+ A B C  41 42 43
+                  // chr(^Z) = chr(Z) - 0x40 = 'Z' - 64
+				  // 
+*/
+
 		exit(0);
+
+		//------ emulate: Ctrl+Z
+		struct packet tmp;
+		tmp.len = 1;
+		tmp.type = MSG_PUSH;
+		tmp.u.buf[0] = '\x1A'; //^Z
+		write(s, &tmp, sizeof(struct packet));
+		printf("\r\n--- detach post---\r\n");
+		
+		return; //not exit, send ^Z
 	}
 	/* Just in case something pukes out. */
 	else if (pkt->u.buf[0] == '\f')
@@ -201,6 +242,8 @@ attach_main(int noerror)
 	signal(SIGQUIT, die);
 	signal(SIGWINCH, win_change);
 
+	printf("--- attach pre1---\n");
+
 	/* Set raw mode. */
 	cur_term.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP|INLCR|IGNCR|ICRNL);
 	cur_term.c_iflag &= ~(IXON|IXOFF);
@@ -213,8 +256,11 @@ attach_main(int noerror)
 	cur_term.c_cc[VTIME] = 0;
 	tcsetattr(0, TCSADRAIN, &cur_term);
 
+	// printf("\n--- attach pre2---\n");
 	/* Clear the screen. This assumes VT100. */
-	write(1, "\33[H\33[J", 6);
+	// write(1, "\33[H\33[J", 6);
+	// printf("\n--- attach post1---\n");
+	// printf("\n--- attach post2---\r\n");
 
 	/* Tell the master that we want to attach. */
 	memset(&pkt, 0, sizeof(struct packet));
