@@ -133,7 +133,7 @@ process_kbd(int s, struct packet *pkt)
 	/* Detach char? */  // Ctrl+\,  
 	else if (pkt->u.buf[0] == detach_char)
 	{
-		printf("\r\n--- detach pre2---\r\n");
+		printf("\r\n--- detach pre2---: LEAVE\r\n");
 		// printf(EOS "\r\n[detached]\r\n");
 		/*
 		puts(
@@ -242,7 +242,7 @@ attach_main(int noerror)
 	signal(SIGQUIT, die);
 	signal(SIGWINCH, win_change);
 
-	printf("--- attach pre1---\n");
+	printf("--- attach pre1---: ENTER\n");
 
 	/* Set raw mode. */
 	cur_term.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP|INLCR|IGNCR|ICRNL);
