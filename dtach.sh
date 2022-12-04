@@ -5,7 +5,8 @@ dtach  -a ~/dtach_dir/ansible.sock -z -r winch
 dtach  -A ~/dtach_dir/b2.sock -z bash
 EOF
 
-SOCK_DIR=~/dtach_dir
+# SOCK_DIR=~/dtach_dir
+SOCK_DIR=~/.dtach
 
 # -----
 echoR(){ echo -e "\e[31m$@\e[0m"; }    
@@ -49,6 +50,7 @@ attach(){
   local name=$1
   [ -n "$name" ] || return
   dtach  -a $SOCK_DIR/$name.sock -z -r winch
+  # dtach  -a $SOCK_DIR/$name.sock -z  # will broke scroll back
 }
 
 create(){
