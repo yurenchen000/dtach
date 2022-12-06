@@ -102,6 +102,34 @@ win_change()
 	win_changed = 1;
 }
 
+
+unsigned char local_modes[8] = {0};
+
+void stat_save_remote(int s){ //save current mode to master
+	fprintf(stderr, "-- save remove state\n");
+	save_mode(modes);
+
+	struct packet pkt;
+	pkt.type = MSG_SAVEMODE;
+	pkt.len = 8;
+	memcpy(pkt.u.buf, modes, 8);
+	write(s, &pkt, sizeof(struct packet));
+}
+
+void stat_load_local(){ //load previous mode to local
+	fprintf(stderr, "\r-- load local state\n");
+
+	if(modes[4] == 1) //only restore if in ALT SCREEN
+		load_mode(local_modes);
+	else
+		fprintf(stderr, "keep, not change\n");
+
+}
+void stat_save_local(){
+	fprintf(stderr, "\r-- save local state\n");
+	save_mode(local_modes);
+}
+
 /* Handles input from the keyboard. */
 static void
 process_kbd(int s, struct packet *pkt)
@@ -134,6 +162,12 @@ process_kbd(int s, struct packet *pkt)
 	else if (pkt->u.buf[0] == detach_char)
 	{
 		printf("\r\n--- detach pre2---: LEAVE\r\n");
+		stat_save_remote(s);
+		stat_load_local();
+
+		printf("\r--detach, exit\r\n");
+		exit(0);
+
 		// printf(EOS "\r\n[detached]\r\n");
 		/*
 		puts(
@@ -195,7 +229,7 @@ attach_main(int noerror)
 
 	/* Attempt to open the socket. Don't display an error if noerror is 
 	** set. */
-	s = connect_socket(sockname);
+	s = connect_socket(sockname); //sock send pkg, recv as stdout
 	if (s < 0 && errno == ENAMETOOLONG)
 	{
 		char *slash = strrchr(sockname, '/');
@@ -243,6 +277,7 @@ attach_main(int noerror)
 	signal(SIGWINCH, win_change);
 
 	printf("--- attach pre1---: ENTER\n");
+	stat_save_local();
 
 	/* Set raw mode. */
 	cur_term.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP|INLCR|IGNCR|ICRNL);
@@ -265,6 +300,12 @@ attach_main(int noerror)
 	/* Tell the master that we want to attach. */
 	memset(&pkt, 0, sizeof(struct packet));
 	pkt.type = MSG_ATTACH;
+	write(s, &pkt, sizeof(struct packet));
+
+	// ----- tell master load mode-state
+	printf("\r--- load remote\r\n");
+	pkt.type = MSG_LOADMODE;
+	pkt.len  = 0;
 	write(s, &pkt, sizeof(struct packet));
 
 	/* We would like a redraw, too. */
