@@ -21,7 +21,7 @@ list(){
   local cur
   local info
   out=`pstree -asT $$ -G | grep '[d]tach'` && {
-    cur=`echo "$out" | grep -oP '[^/ ]*(?=.sock)'`
+    cur=`echo "$out" | grep -oP '[^/ ]*(?=.sock)' | tail -1`
     [ "$1" == "-v" ] && {
       echo "> current in dtach: "
       echo "$out" | grep -P '[^/ ]*(?=.sock)' --color
@@ -56,7 +56,7 @@ attach(){
 create(){
   local name=$1
   [ -n "$name" ] || return
-  dtach  -A $SOCK_DIR/$name.sock -z bash
+  dtach  -A $SOCK_DIR/$name.sock -z -r winch bash 
 }
 
 #####
