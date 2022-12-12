@@ -153,7 +153,7 @@ static void
 killpty(struct pty *pty, int sig)
 {
 	pid_t pgrp = -1;
-
+	fprintf(stderr, "killpty: %d\n", sig);
 #ifdef TIOCSIGNAL
 	if (ioctl(pty->fd, TIOCSIGNAL, sig) >= 0)
 		return;
@@ -173,6 +173,7 @@ killpty(struct pty *pty, int sig)
 		return;
 #endif
 
+	fprintf(stderr, "killpid: %d %d\n", -pty->pid, sig);
 	/* Fallback using the child's pid. */
 	kill(-pty->pid, sig);
 }
@@ -373,11 +374,29 @@ client_activity(struct client *p)
 		return;
 	} 
 
+	//fprintf(stderr, "== msg: %d\n", pkt.type);
 	/* Push out data to the program. */
 	if (pkt.type == MSG_PUSH)
 	{
 		if (pkt.len <= sizeof(pkt.u.buf))
 			write(the_pty.fd, pkt.u.buf, pkt.len);
+	}
+	/* save / load mode-state. */
+	else if (pkt.type == MSG_SAVEMODE)
+	{   //client store mode-state
+		fprintf(stderr, "== recv: save-mode msg\n");
+		memcpy(modes, pkt.u.buf, sizeof(modes));
+		show_mode(modes);
+	}
+	else if (pkt.type == MSG_LOADMODE)
+	{   //client query mode-state
+		// memcpy(pkt.u.buf, modes, sizeof(modes));
+		// write(p->fd, "", 0) //to client stdout
+		fprintf(stderr, "== recv: load-mode msg\n");
+		if(modes[4] == 1) //only restore if in ALT SCREEN
+			send_mode(modes, p->fd);
+		else
+			fprintf(stderr, "keep, not change\n");
 	}
 
 	/* Attach or detach from the program. */
@@ -411,7 +430,8 @@ client_activity(struct client *p)
 
 		/* Send a ^L character if the terminal is in no-echo and
 		** character-at-a-time mode. */
-		if (method == REDRAW_CTRL_L)
+		// if (method == REDRAW_CTRL_L)
+		if (method == REDRAW_CTRL_L || modes[4]==1) //or alt screen
 		{
 			char c = '\f';
 
@@ -476,12 +496,12 @@ master_process(int s, char **argv, int waitattach, int statusfd)
 
 	/* Make sure stdin/stdout/stderr point to /dev/null. We are now a
 	** daemon. */
-	nullfd = open("/dev/null", O_RDWR);
-	dup2(nullfd, 0);
-	dup2(nullfd, 1);
-	dup2(nullfd, 2);
-	if (nullfd > 2)
-		close(nullfd);
+	// nullfd = open("/dev/null", O_RDWR);
+	// dup2(nullfd, 0);
+	// dup2(nullfd, 1);
+	// dup2(nullfd, 2);
+	// if (nullfd > 2)
+	// 	close(nullfd);
 
 	/* Loop forever. */
 	while (1)
