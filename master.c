@@ -430,8 +430,8 @@ client_activity(struct client *p)
 
 		/* Send a ^L character if the terminal is in no-echo and
 		** character-at-a-time mode. */
-		// if (method == REDRAW_CTRL_L)
-		if (method == REDRAW_CTRL_L || modes[4]==1) //or alt screen
+		if (method == REDRAW_CTRL_L)
+		// if (method == REDRAW_CTRL_L || modes[4]==1) //or alt screen
 		{
 			char c = '\f';
 
