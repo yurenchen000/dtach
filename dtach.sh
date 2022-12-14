@@ -46,17 +46,20 @@ list(){
   done
 }
 
+## note: -r ctrl_l may not always work, for example in vim insert mode
 attach(){
   local name=$1
   [ -n "$name" ] || return
   dtach  -a $SOCK_DIR/$name.sock -z -r winch
+  # dtach  -a $SOCK_DIR/$name.sock -z -r ctrl_l
   # dtach  -a $SOCK_DIR/$name.sock -z  # will broke scroll back
 }
 
 create(){
   local name=$1
   [ -n "$name" ] || return
-  dtach  -A $SOCK_DIR/$name.sock -z -r winch bash 
+  dtach  -A $SOCK_DIR/$name.sock -z -r winch bash --rcfile ~/.dtach_bashrc
+  # dtach  -A $SOCK_DIR/$name.sock -z -r ctrl_l bash --rcfile ~/.dtach_bashrc
 }
 
 #####
@@ -64,6 +67,20 @@ ls(){ list; }
 att(){ attach "$@"; }
 cre(){ create "$@"; }
 new(){ create "$@"; }
+help(){
+  cat <<EOF
+  ls
+  list
+
+  att[ach] NAME
+
+  cre[ate] NAME
+  new      NAME
+EOF
+  exit
+}
+
+[ -z "$1" -o "$1" == "-h" ] && help
 
 "$@"
 
