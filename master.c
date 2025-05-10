@@ -17,6 +17,9 @@
 */
 #include "dtach.h"
 
+// #define mylog fprintf
+#define mylog 
+
 /* The pty struct - The pty information is stored here. */
 struct pty
 {
@@ -374,7 +377,7 @@ client_activity(struct client *p)
 		return;
 	} 
 
-	//fprintf(stderr, "== msg: %d\n", pkt.type);
+	mylog(stderr, "== msg: %d\n", pkt.type);
 	/* Push out data to the program. */
 	if (pkt.type == MSG_PUSH)
 	{
@@ -409,6 +412,7 @@ client_activity(struct client *p)
 	else if (pkt.type == MSG_WINCH)
 	{
 		the_pty.ws = pkt.u.ws;
+		fprintf(stderr, "=size: %dx%d\n", the_pty.ws.ws_col, the_pty.ws.ws_row);
 		ioctl(the_pty.fd, TIOCSWINSZ, &the_pty.ws);
 	}
 
@@ -426,6 +430,14 @@ client_activity(struct client *p)
 
 		/* Set the window size. */
 		the_pty.ws = pkt.u.ws;
+		the_pty.ws.ws_col--; //make a size change (for WINCH effect)
+		fprintf(stderr, "-size: %dx%d\n", the_pty.ws.ws_col, the_pty.ws.ws_row);
+		ioctl(the_pty.fd, TIOCSWINSZ, &the_pty.ws);
+		// killpty(&the_pty, SIGWINCH);
+		usleep(5*1000); //5ms
+
+		the_pty.ws = pkt.u.ws;
+		fprintf(stderr, "=size: %dx%d\n", the_pty.ws.ws_col, the_pty.ws.ws_row);
 		ioctl(the_pty.fd, TIOCSWINSZ, &the_pty.ws);
 
 		/* Send a ^L character if the terminal is in no-echo and
