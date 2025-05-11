@@ -165,10 +165,11 @@ process_kbd(int s, struct packet *pkt)
 	/* Detach char? */  // Ctrl+\,  
 	else if (pkt->u.buf[0] == detach_char)
 	{
-		printf("\r\n--- detach pre2---: LEAVE\r\n");
+		mylog("\r\n--- detach pre2---: LEAVE\r\n");
 		stat_save_remote(s);
 		stat_load_local();
 
+		printf("\r\n--- detach post---: LEAVE\r\n");
 		mylog(stderr, "\r--detach, exit\r\n");
 		exit(0);
 
