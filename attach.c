@@ -17,6 +17,10 @@
 */
 #include "dtach.h"
 
+// #define mylog fprintf
+#define mylog(...)  
+
+
 #ifndef VDISABLE
 #ifdef _POSIX_VDISABLE
 #define VDISABLE _POSIX_VDISABLE
@@ -106,7 +110,7 @@ win_change()
 unsigned char local_modes[8] = {0};
 
 void stat_save_remote(int s){ //save current mode to master
-	fprintf(stderr, "-- save remove state\n");
+	mylog(stderr, "-- save remove state\n");
 	save_mode(modes);
 
 	struct packet pkt;
@@ -117,16 +121,16 @@ void stat_save_remote(int s){ //save current mode to master
 }
 
 void stat_load_local(){ //load previous mode to local
-	fprintf(stderr, "\r-- load local state\n");
+	mylog(stderr, "\r-- load local state\n");
 
 	if(modes[4] == 1) //only restore if in ALT SCREEN
 		load_mode(local_modes);
 	else
-		fprintf(stderr, "keep, not change\n");
+		mylog(stderr, "keep, not change\n");
 
 }
 void stat_save_local(){
-	fprintf(stderr, "\r-- save local state\n");
+	mylog(stderr, "\r-- save local state\n");
 	save_mode(local_modes);
 }
 
@@ -165,7 +169,7 @@ process_kbd(int s, struct packet *pkt)
 		stat_save_remote(s);
 		stat_load_local();
 
-		printf("\r--detach, exit\r\n");
+		mylog(stderr, "\r--detach, exit\r\n");
 		exit(0);
 
 		// printf(EOS "\r\n[detached]\r\n");
@@ -207,7 +211,7 @@ process_kbd(int s, struct packet *pkt)
 		tmp.type = MSG_PUSH;
 		tmp.u.buf[0] = '\x1A'; //^Z
 		write(s, &tmp, sizeof(struct packet));
-		printf("\r\n--- detach post---\r\n");
+		mylog(stderr, "\r\n--- detach post---\r\n");
 		
 		return; //not exit, send ^Z
 	}
@@ -303,7 +307,7 @@ attach_main(int noerror)
 	write(s, &pkt, sizeof(struct packet));
 
 	// ----- tell master load mode-state
-	printf("\r--- load remote\r\n");
+	mylog(stderr, "\r--- load remote\r\n");
 	pkt.type = MSG_LOADMODE;
 	pkt.len  = 0;
 	write(s, &pkt, sizeof(struct packet));
