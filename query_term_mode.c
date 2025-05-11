@@ -3,6 +3,10 @@
 
 #include <stdio.h>
 
+// #define mylog fprintf
+#define mylog(...)  
+
+
 struct termios old;
 struct termios tio;
 int flg = 0;
@@ -144,7 +148,7 @@ void send_mode(unsigned char *modes, int fd){
     else if(val==2)
       pos += sprintf(&buf[pos], "\e[?%dl", num);
   }
-  fprintf(stderr, "send_mode: %d bytes\n", pos);
+  mylog(stderr, "send_mode: %d bytes\n", pos);
   write(fd, buf, pos);
 }
 
