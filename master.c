@@ -18,7 +18,8 @@
 #include "dtach.h"
 
 // #define mylog fprintf
-#define mylog 
+#define mylog(...)  
+#define show_mode(x)  
 
 /* The pty struct - The pty information is stored here. */
 struct pty
@@ -156,7 +157,7 @@ static void
 killpty(struct pty *pty, int sig)
 {
 	pid_t pgrp = -1;
-	fprintf(stderr, "killpty: %d\n", sig);
+	mylog(stderr, "killpty: %d\n", sig);
 #ifdef TIOCSIGNAL
 	if (ioctl(pty->fd, TIOCSIGNAL, sig) >= 0)
 		return;
@@ -176,7 +177,7 @@ killpty(struct pty *pty, int sig)
 		return;
 #endif
 
-	fprintf(stderr, "killpid: %d %d\n", -pty->pid, sig);
+	mylog(stderr, "killpid: %d %d\n", -pty->pid, sig);
 	/* Fallback using the child's pid. */
 	kill(-pty->pid, sig);
 }
@@ -399,7 +400,7 @@ client_activity(struct client *p)
 		if(modes[4] == 1) //only restore if in ALT SCREEN
 			send_mode(modes, p->fd);
 		else
-			fprintf(stderr, "keep, not change\n");
+			mylog(stderr, "keep, not change\n");
 	}
 
 	/* Attach or detach from the program. */
@@ -412,7 +413,7 @@ client_activity(struct client *p)
 	else if (pkt.type == MSG_WINCH)
 	{
 		the_pty.ws = pkt.u.ws;
-		fprintf(stderr, "=size: %dx%d\n", the_pty.ws.ws_col, the_pty.ws.ws_row);
+		mylog(stderr, "=size: %dx%d\n", the_pty.ws.ws_col, the_pty.ws.ws_row);
 		ioctl(the_pty.fd, TIOCSWINSZ, &the_pty.ws);
 	}
 
@@ -431,13 +432,13 @@ client_activity(struct client *p)
 		/* Set the window size. */
 		the_pty.ws = pkt.u.ws;
 		the_pty.ws.ws_col--; //make a size change (for WINCH effect)
-		fprintf(stderr, "-size: %dx%d\n", the_pty.ws.ws_col, the_pty.ws.ws_row);
+		mylog(stderr, "-size: %dx%d\n", the_pty.ws.ws_col, the_pty.ws.ws_row);
 		ioctl(the_pty.fd, TIOCSWINSZ, &the_pty.ws);
 		// killpty(&the_pty, SIGWINCH);
 		usleep(5*1000); //5ms
 
 		the_pty.ws = pkt.u.ws;
-		fprintf(stderr, "=size: %dx%d\n", the_pty.ws.ws_col, the_pty.ws.ws_row);
+		mylog(stderr, "=size: %dx%d\n", the_pty.ws.ws_col, the_pty.ws.ws_row);
 		ioctl(the_pty.fd, TIOCSWINSZ, &the_pty.ws);
 
 		/* Send a ^L character if the terminal is in no-echo and
