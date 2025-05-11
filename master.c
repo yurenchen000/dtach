@@ -388,7 +388,7 @@ client_activity(struct client *p)
 	/* save / load mode-state. */
 	else if (pkt.type == MSG_SAVEMODE)
 	{   //client store mode-state
-		fprintf(stderr, "== recv: save-mode msg\n");
+		mylog(stderr, "== recv: save-mode msg\n");
 		memcpy(modes, pkt.u.buf, sizeof(modes));
 		show_mode(modes);
 	}
@@ -396,7 +396,7 @@ client_activity(struct client *p)
 	{   //client query mode-state
 		// memcpy(pkt.u.buf, modes, sizeof(modes));
 		// write(p->fd, "", 0) //to client stdout
-		fprintf(stderr, "== recv: load-mode msg\n");
+		mylog(stderr, "== recv: load-mode msg\n");
 		if(modes[4] == 1) //only restore if in ALT SCREEN
 			send_mode(modes, p->fd);
 		else
