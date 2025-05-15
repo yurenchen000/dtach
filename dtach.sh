@@ -75,10 +75,11 @@ show_hist(){
       return 1
     }
   }
+  local time=`stat -c'%y' ~/.dtach/$name.out | awk '{sub(/\..*/, "", $2); print $1" "$2}'`
   echoY "--------old hist--------(("
   cat ~/.dtach/$name.out | perl -pe 'BEGIN { $/=undef } s/\x1B\[\?1049h.*?\x1B\[\?1049l//sg' | tail -n $line
   echo
-  echoY "--------old hist--------))"
+  echoY "--------old hist--------)) $time"
   #cat ~/.dtach/$name.out | sed -e '/\x1B\[?1049h/,/\x1B\[?1049l/d' | tail -n $line; echo --------old hist--------
 }
 
