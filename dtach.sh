@@ -15,6 +15,19 @@ echoY(){ echo -e "\e[33m$@\e[0m"; }
 echoH(){ echo -e "\e[01;32;40m$@\e[0m"; }
 
 # -----
+get_cur(){
+  local out cur
+  out=`pstree -asT $$ -G | grep '[d]tach'` && {
+    cur=`echo "$out" | grep -oP '[^/ ]*(?=.sock)' | tail -1`
+  	[ -n "$cur" ] && {
+		echo "$cur"
+		return 0
+	}
+  }
+  return 1
+}
+
+# -----
 list(){
   local f s
   local out
@@ -50,6 +63,12 @@ list(){
 attach(){
   local name=$1
   [ -n "$name" ] || return
+  local cur=`get_cur`
+  [ -n "$cur" ] && {
+	echo -e "current in \e[32m$cur\e[0m, not attach!"
+  	return
+  }
+
   dtach  -a $SOCK_DIR/$name.sock -z -r winch
   # dtach  -a $SOCK_DIR/$name.sock -z -r ctrl_l
   # dtach  -a $SOCK_DIR/$name.sock -z  # will broke scroll back
