@@ -1,4 +1,5 @@
-#
+#!/bin/bash
+# vi: ts=2 sw=2 et
 
 : <<'EOF'
 dtach  -a ~/dtach_dir/ansible.sock -z -r winch
@@ -65,8 +66,8 @@ attach(){
   [ -n "$name" ] || return
   local cur=`get_cur`
   [ -n "$cur" ] && {
-	echo -e "current in \e[32m$cur\e[0m, not attach!"
-  	return
+    echo -e " current in \e[33m$cur\e[0m, not attach!"
+    return
   }
 
   dtach  -a $SOCK_DIR/$name.sock -z -r winch
@@ -86,14 +87,12 @@ show_hist(){
   local name=$1
   local line=${2:-999}
   [ -n "$name" ] || return
-  local out cur
-  out=`pstree -asT $$ -G | grep '[d]tach'` && {
-    cur=`echo "$out" | grep -oP '[^/ ]*(?=.sock)' | tail -1`
-    [ "$name" == "$cur" ] && {
-      echo -e " current in \e[33m$cur\e[0m, not show log here (avoid loop)"
-      return 1
-    }
+  local cur=`get_cur`
+  [ "$name" == "$cur" ] && {
+    echo -e " current in \e[33m$cur\e[0m, not show log here (avoid loop)"
+    return 1
   }
+
   local time=`stat -c'%y' ~/.dtach/$name.out | awk '{sub(/\..*/, "", $2); print $1" "$2}'`
   echoY "--------old hist--------(("
   cat ~/.dtach/$name.out | perl -pe 'BEGIN { $/=undef } s/\x1B\[\?1049h.*?(\x1B\[\?1049l|$)//sg' | tail -n $line
@@ -103,7 +102,7 @@ show_hist(){
 }
 
 #####
-ls(){ list; }
+ls(){ list "$@"; }
 att(){ attach "$@"; }
 cre(){ create "$@"; }
 new(){ create "$@"; }
