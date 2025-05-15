@@ -58,8 +58,28 @@ attach(){
 create(){
   local name=$1
   [ -n "$name" ] || return
-  dtach  -A $SOCK_DIR/$name.sock -z -r winch bash --rcfile ~/.dtach_bashrc
+  dtach  -A $SOCK_DIR/$name.sock -z -r winch  script ~/.dtach/$name.out -f -c 'bash --rcfile ~/.dtach_bashrc'
+  #dtach  -A $SOCK_DIR/$name.sock -z -r winch bash --rcfile ~/.dtach_bashrc
   # dtach  -A $SOCK_DIR/$name.sock -z -r ctrl_l bash --rcfile ~/.dtach_bashrc
+}
+
+show_hist(){
+  local name=$1
+  local line=${2:-999}
+  [ -n "$name" ] || return
+  local out cur
+  out=`pstree -asT $$ -G | grep '[d]tach'` && {
+    cur=`echo "$out" | grep -oP '[^/ ]*(?=.sock)' | tail -1`
+    [ "$name" == "$cur" ] && {
+      echo -e " current in \e[33m$cur\e[0m, not show log here (avoid loop)"
+      return 1
+    }
+  }
+  echoY "--------old hist--------(("
+  cat ~/.dtach/$name.out | perl -pe 'BEGIN { $/=undef } s/\x1B\[\?1049h.*?\x1B\[\?1049l//sg' | tail -n $line
+  echo
+  echoY "--------old hist--------))"
+  #cat ~/.dtach/$name.out | sed -e '/\x1B\[?1049h/,/\x1B\[?1049l/d' | tail -n $line; echo --------old hist--------
 }
 
 #####
@@ -67,6 +87,8 @@ ls(){ list; }
 att(){ attach "$@"; }
 cre(){ create "$@"; }
 new(){ create "$@"; }
+log(){ show_hist "$@"; }
+
 help(){
   cat <<EOF
   ls
