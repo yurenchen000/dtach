@@ -12,8 +12,12 @@ ls3(){
 		return
 	}
 
+	local out cur
+	out=`pstree -asT $$ -G | grep '[d]tach'` && \
+	cur=`echo "$out" | grep -oP '[^/ ]*(?=.sock)' | tail -1`
+
     local cnt=`echo "$rows" | wc -l`
-    echo "$rows" | awk '
+    echo "$rows" | awk -vcur="$cur" '
     function frt(t,    n,ft,d,u,v) {
         now = systime()
         ftime = mktime(gensub(/[-:]/, " ", "g", t))
@@ -43,7 +47,10 @@ ls3(){
         at = $4" "$5; sub(/\..*/, "", at)
         # print mt " " frt(mt) "\t" at " " frt(at) "\t" $7
         # print frt(mt) "\t" frt(at) "\t" $7
-        print frt(mt) "\t" frt(at) "\t" "\033[32;01m"$7"\033[0m"
+		if($7 == cur)
+          print frt(mt) "\t" frt(at) "\t" "\033[32;01m"$7"\033[0m"
+		else
+          print frt(mt) "\t" frt(at) "\t" "\033[37;01m"$7"\033[0m"
     }' \
     | gum table  --height=$(($cnt+2)) --separator=$'\t' --columns='create,access,name' --return-column=3 --border=normal  --widths=18,18,30 --selected.foreground="221" --selected.background=#626 \
     | sed 's/\x1b\[[0-9;]*m//g'
