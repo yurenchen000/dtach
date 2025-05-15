@@ -6,7 +6,7 @@
 # 2025-05-12 03:21:04.782458196 +0800  2025-05-12 03:21:04.782458196 +0800  /home/hao.chen/.dtach/dtach.sock
 
 ls3(){
-    local rows=`stat -c "%y  %x  %n" ~/.dtach/* | sort -rbsk4,5`
+    local rows=`stat -c "%y  %x  %n" ~/.dtach/*.sock | sort -rbsk4,5`
     local cnt=`echo "$rows" | wc -l`
     echo "$rows" | awk '
     function frt(t,    n,ft,d,u,v) {
