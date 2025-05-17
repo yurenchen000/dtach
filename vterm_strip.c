@@ -78,7 +78,7 @@ static int color_to_ansi(VTermColor *color, char *buffer, int is_fg) {
         sprintf(buffer, "\033[%d;5;%dm", is_fg ? 38 : 48, index);
         return 1;
         */
-    }
+    } else
 
     if (color->type == VTERM_COLOR_RGB) {
         // fprintf(stderr, "color rgb: %d %d %d\n", color->rgb.red, color->rgb.green, color->rgb.blue);
@@ -86,6 +86,20 @@ static int color_to_ansi(VTermColor *color, char *buffer, int is_fg) {
         sprintf(buffer, "\033[%d;2;%d;%d;%dm", is_fg ? 38 : 48,
                 color->rgb.red, color->rgb.green, color->rgb.blue);
         return 1;
+    } else
+
+    if (color->type == VTERM_COLOR_DEFAULT_FG)
+    {
+        // fprintf(stderr, "=color fg: %d\n", color->type);
+        if(is_fg) printf("\033[0m");  //TODO: this also reset BG, which not we want
+        // if(is_fg) printf("_");
+    } else
+
+    if (color->type == VTERM_COLOR_DEFAULT_BG)
+    {
+        // fprintf(stderr, "=color bg: %d\n", color->type);
+        // if(!is_fg) printf("\033[0m");
+        // if(!is_fg) printf("?");
     }
 
     // Unknown color type: No escape code
@@ -107,16 +121,24 @@ static int print_color(VTermColor *color) {
     }
 }
 
+//ret 1 if eq
 static int color_equal(const VTermColor *a, const VTermColor *b) {
     if (a->type != b->type) return 0;
     // if (a->type == VTERM_COLOR_INVALID) return 1;
     if (a->type == VTERM_COLOR_INDEXED)
         return a->indexed.idx == b->indexed.idx;
-    if (a->type == VTERM_COLOR_RGB) {
+    if (a->type == VTERM_COLOR_RGB) { //ret 1 if eq
         return a->rgb.red == b->rgb.red &&
                a->rgb.green == b->rgb.green &&
                a->rgb.blue == b->rgb.blue;
     }
+    if (a->type == VTERM_COLOR_DEFAULT_FG) {
+        return a->type == b->type;
+    }
+    if (a->type == VTERM_COLOR_DEFAULT_BG) {
+        return a->type == b->type;
+    }
+
     return 0;
 }
 
@@ -258,11 +280,11 @@ int main() {
                 // fprintf(stderr, "%s\n", out);
                 printf("%s", out);
             }
-        }
+        } //for cols
         if (!is_empty_row) {
             printf("\033[0m\n"); // Reset and newline for non-empty rows
         }
-    }
+    } //for rows
 
     // Clean up
     vterm_free(vterm);
