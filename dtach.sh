@@ -8,6 +8,7 @@ EOF
 
 # SOCK_DIR=~/dtach_dir
 SOCK_DIR=~/.dtach
+dir=`dirname $(readlink -f $BASH_SOURCE)`
 
 # -----
 echoR(){ echo -e "\e[31m$@\e[0m"; }    
@@ -95,7 +96,17 @@ show_hist(){
 
   local time=`stat -c'%y' ~/.dtach/$name.out | awk '{sub(/\..*/, "", $2); print $1" "$2}'`
   echoY "--------old hist--------(("
-  cat ~/.dtach/$name.out | perl -pe 'BEGIN { $/=undef } s/\x1B\[\?1049h.*?(\x1B\[\?1049l|$)//sg; s/\x1B\[\?\d{1,4}\$p//g;' | tail -n $line
+  cat ~/.dtach/$name.out | \
+    $dir/vterm_strip | \
+    tail -n $line
+
+    # perl -pe 'BEGIN { $/=undef } s/\x1B\[\?1049h.*?(\x1B\[\?1049l|$)//sg; s/\x1B\[\?\d{1,4}\$p//g;' | \
+    # python3 $dir/pyte_strip.py |
+
+  ### Accurate but slow
+  # cat ~/.dtach/$name.out | python3 $dir/pyte_strip.py | tail -n $line
+  ### Rough but fast
+  # cat ~/.dtach/$name.out | perl -pe 'BEGIN { $/=undef } s/\x1B\[\?1049h.*?(\x1B\[\?1049l|$)//sg; s/\x1B\[\?\d{1,4}\$p//g;' | tail -n $line
   echo
   echoY "--------old hist--------)) $time"
   #cat ~/.dtach/$name.out | sed -e '/\x1B\[?1049h/,/\x1B\[?1049l/d' | tail -n $line; echo --------old hist--------
