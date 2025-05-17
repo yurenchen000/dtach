@@ -120,6 +120,30 @@ static int color_equal(const VTermColor *a, const VTermColor *b) {
     return 0;
 }
 
+// Unicode codepoint => UTF-8
+int utf8_encode(uint32_t codepoint, char *out) {
+    if (codepoint <= 0x7F) {
+        out[0] = codepoint;
+        return 1;
+    } else if (codepoint <= 0x7FF) {
+        out[0] = 0xC0 | (codepoint >> 6);
+        out[1] = 0x80 | (codepoint & 0x3F);
+        return 2;
+    } else if (codepoint <= 0xFFFF) {
+        out[0] = 0xE0 | (codepoint >> 12);
+        out[1] = 0x80 | ((codepoint >> 6) & 0x3F);
+        out[2] = 0x80 | (codepoint & 0x3F);
+        return 3;
+    } else if (codepoint <= 0x10FFFF) {
+        out[0] = 0xF0 | (codepoint >> 18);
+        out[1] = 0x80 | ((codepoint >> 12) & 0x3F);
+        out[2] = 0x80 | ((codepoint >> 6) & 0x3F);
+        out[3] = 0x80 | (codepoint & 0x3F);
+        return 4;
+    }
+    return 0;
+}
+
 // Main function
 int main() {
     // Initialize libvterm
@@ -129,6 +153,7 @@ int main() {
         fprintf(stderr, "Failed to create vterm\n");
         return 1;
     }
+    vterm_set_utf8(vterm, 1);
 
     // Enable screen features
     VTermScreen *screen = vterm_obtain_screen(vterm);
@@ -199,12 +224,17 @@ int main() {
 
             // Output text (handle multi-byte characters)
             if (cell.chars[0] != 0) {
-                char out[8];
-                int i = 0;
+                // char out[8];
+                char out[8*4] = {0};
+                // int i = 0;
+                char *p=&out[0];
                 for (int j = 0; j < VTERM_MAX_CHARS_PER_CELL && cell.chars[j] != 0; j++) {
-                    out[i++] = cell.chars[j] & 0xFF; // Simplified UTF-8 handling
+                    // out[i++] = cell.chars[j] & 0xFF; // Simplified UTF-8 handling
+                    int len = utf8_encode(cell.chars[j], p);
+                    p+=len;
                 }
-                out[i] = '\0';
+                *p = '\0';
+                // out[i] = '\0';
                 // fprintf(stderr, "%s\n", out);
                 printf("%s", out);
             }
