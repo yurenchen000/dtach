@@ -144,11 +144,31 @@ int utf8_encode(uint32_t codepoint, char *out) {
     return 0;
 }
 
+void get_term_size_from_env(int *_rows, int *_cols) {
+    const char *lines_str = getenv("LINES");
+    const char *cols_str = getenv("COLUMNS");
+    // fprintf(stderr, "=env size row, col: %s, %s\n", lines_str, cols_str);
+
+    int rows, cols;
+    if (cols_str) {
+        cols = atoi(cols_str);
+        if(cols>0) *_cols = cols;
+    }
+    if (lines_str) {
+        rows = atoi(lines_str);
+        if(rows>0) *_rows = rows;
+    }
+}
+
 // Main function
 int main() {
+    int rows = 999, cols = 80;  //default size
+    get_term_size_from_env(&rows, &cols);
+
     // Initialize libvterm
-    VTerm *vterm = vterm_new(999, 80); // 999 rows, 80 columns
-    //fprintf(stderr, "size row, col: %d, %d\n", 999, 80);
+    // VTerm *vterm = vterm_new(999, 80); // 999 rows, 80 columns
+    VTerm *vterm = vterm_new(rows, cols);
+    fprintf(stderr, "=set size row, col: %d, %d\n", rows, cols);
     if (!vterm) {
         fprintf(stderr, "Failed to create vterm\n");
         return 1;
