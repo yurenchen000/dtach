@@ -229,6 +229,7 @@ int main() {
     char ansi_buffer[64];
     VTermScreenCell cell;
     VTermColor last_fg,last_bg;
+    int count_empty_row = 0;
     for (int row = 0; row < pos.row; row++) {
         int is_empty_row = 1;
         for (int col = 0; col < pos.col; col++) {
@@ -282,8 +283,24 @@ int main() {
             }
         } //for cols
         if (!is_empty_row) {
-            printf("\033[0m\n"); // Reset and newline for non-empty rows
+            // printf("\033[0m\n"); // Reset and newline for non-empty rows
+            printf("\n");
+        }else { //empty row
+            if(!count_empty_row){
+                // printf("r%d\n", row); //trim multi empty line
+                // printf("\n");
+            }
         }
+        //hack: trim multi empty line
+        if (is_empty_row){
+            count_empty_row++;
+            // printf("r%d: %d\n", row, count_empty_row); //trim multi empty line
+            if(count_empty_row==3)
+                printf("\n\n");
+        }else{
+            count_empty_row=0;
+        }
+
     } //for rows
 
     // Clean up
