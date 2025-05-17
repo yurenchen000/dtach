@@ -123,7 +123,8 @@ static int color_equal(const VTermColor *a, const VTermColor *b) {
 // Main function
 int main() {
     // Initialize libvterm
-    VTerm *vterm = vterm_new(24, 80); // 24 rows, 80 columns
+    VTerm *vterm = vterm_new(999, 80); // 999 rows, 80 columns
+    //fprintf(stderr, "size row, col: %d, %d\n", 999, 80);
     if (!vterm) {
         fprintf(stderr, "Failed to create vterm\n");
         return 1;
@@ -131,7 +132,7 @@ int main() {
 
     // Enable screen features
     VTermScreen *screen = vterm_obtain_screen(vterm);
-    vterm_screen_enable_altscreen(screen, 0);
+    vterm_screen_enable_altscreen(screen, 1);
     vterm_screen_reset(screen, 1);
 
     // Set callbacks
