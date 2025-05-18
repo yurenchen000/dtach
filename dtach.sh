@@ -79,6 +79,7 @@ attach(){
 create(){
   local name=$1
   [ -n "$name" ] || return
+  [ -d "$SOCK_DIR" ] || mkdir -v "$SOCK_DIR"
   dtach  -A $SOCK_DIR/$name.sock -z -r winch  script ~/.dtach/$name.out -f -c 'DTACH_NAME="'"$name"'" bash --rcfile ~/.dtach_bashrc'
   #dtach  -A $SOCK_DIR/$name.sock -z -r winch bash --rcfile ~/.dtach_bashrc
   # dtach  -A $SOCK_DIR/$name.sock -z -r ctrl_l bash --rcfile ~/.dtach_bashrc
