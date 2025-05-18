@@ -97,9 +97,10 @@ show_hist(){
   local time=`stat -c'%y' ~/.dtach/$name.out | awk '{sub(/\..*/, "", $2); print $1" "$2}'`
   read LINES COLUMNS < <(stty size)
   echoY "--------old hist--------(( $COLUMNS x $LINES"
-  cat ~/.dtach/$name.out | \
-    COLUMNS=$COLUMNS $dir/vterm_strip | \
-    tail -n $line
+  unterm -c $COLUMNS ~/.dtach/$name.out | tail -n $line
+  # cat ~/.dtach/$name.out | \
+  #   COLUMNS=$COLUMNS $dir/vterm_strip | \
+  #   tail -n $line
 
     # perl -pe 'BEGIN { $/=undef } s/\x1B\[\?1049h.*?(\x1B\[\?1049l|$)//sg; s/\x1B\[\?\d{1,4}\$p//g;' | \
     # python3 $dir/pyte_strip.py |
