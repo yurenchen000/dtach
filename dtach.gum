@@ -1,0 +1,75 @@
+#!/bin/bash
+
+# 2025-05-13 17:12:26.559178142 +0800  2025-05-13 19:13:31.281329731 +0800  /home/hao.chen/.dtach/and_pcdn.sock
+# 2022-11-28 22:05:13.940432308 +0800  2024-07-31 19:59:33.137702409 +0800  /home/hao.chen/.dtach/ansible2.sock
+# 2025-05-12 03:25:24.102646766 +0800  2025-05-12 03:25:24.102646766 +0800  /home/hao.chen/.dtach/br4.sock
+# 2025-05-12 03:21:04.782458196 +0800  2025-05-12 03:21:04.782458196 +0800  /home/hao.chen/.dtach/dtach.sock
+
+ls3(){
+    local rows=`stat -c "%y  %x  %n" ~/.dtach/*.sock 2>/dev/null | sort -rbsk4,5`
+	[ -n "$rows" ] || {
+		echo "no any session yet!" >&2
+		return
+	}
+
+	local out cur
+	out=`pstree -asT $$ -G | grep '[d]tach'` && \
+	cur=`echo "$out" | grep -oP '[^/ ]*(?=.sock)' | tail -1`
+
+    local cnt=`echo "$rows" | wc -l`
+    echo "$rows" | awk -vcur="$cur" '
+    function frt(t,    n,ft,d,u,v) {
+        now = systime()
+        ftime = mktime(gensub(/[-:]/, " ", "g", t))
+        d = now - ftime
+
+        if (d < 60) {
+            v = d; u = "second"
+        } else if (d < 3600) {
+            v = int(d/60); u = "minute"
+        } else if (d < 86400) {
+            v = int(d/3600); u = "hour"
+        } else if (d < 604800) {
+            v = int(d/86400); u = "day"
+        } else if (d < 2592000) {
+            v = int(d/604800); u = "week"
+        } else if (d < 31536000*2) {
+            v = int(d/2592000); u = "month"
+        } else {
+            v = int(d/31536000); u = "year"
+        }
+        return sprintf("%d %s%s ago", v, u, v==1?"":"s")
+    }
+    {
+        gsub(/.*\//, "", $7)
+        gsub(/.sock$/, "", $7)
+        mt = $1" "$2; sub(/\..*/, "", mt)
+        at = $4" "$5; sub(/\..*/, "", at)
+        # print mt " " frt(mt) "\t" at " " frt(at) "\t" $7
+        # print frt(mt) "\t" frt(at) "\t" $7
+		if($7 == cur)
+          print frt(mt) "\t" frt(at) "\t" "\033[32;01m"$7"\033[0m"
+		else
+          print frt(mt) "\t" frt(at) "\t" "\033[37;01m"$7"\033[0m"
+    }' \
+    | gum table  --height=$(($cnt+2)) --separator=$'\t' --columns='create,access,name' --return-column=3 --border=normal  --widths=18,18,30 --selected.foreground="221" --selected.background=#626 \
+    | sed 's/\x1b\[[0-9;]*m//g'
+    # | gum table  --height=$((cnt+1)) --separator=$'\t' --columns='create,access,name' --return-column=3
+}
+
+
+choose(){
+    local name=`ls3`
+    [ -n "$name" ] && {
+        echo "== dtach.sh att $name"
+        dtach.sh att $name
+    }
+}
+
+[ -n "$1" ] || {
+    choose
+    exit
+}
+
+"$@"
+

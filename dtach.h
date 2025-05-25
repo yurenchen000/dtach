@@ -92,7 +92,17 @@ enum
 	MSG_DETACH	= 2,
 	MSG_WINCH	= 3,
 	MSG_REDRAW	= 4,
+
+	MSG_SAVEMODE = 5,
+	MSG_LOADMODE = 6,
 };
+
+//len: 8
+extern unsigned char modes[sizeof(struct winsize)];
+extern void show_mode(unsigned char *modes);
+extern void save_mode(unsigned char *modes);
+extern void load_mode(unsigned char *modes);
+extern void send_mode(unsigned char *modes, int fd);
 
 enum
 {

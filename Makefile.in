@@ -6,7 +6,7 @@ LIBS = @LIBS@
 VERSION = @PACKAGE_VERSION@
 VPATH = $(srcdir)
 
-OBJ = attach.o master.o main.o
+OBJ = attach.o master.o main.o query_term_mode.o
 SRC = $(srcdir)/attach.c $(srcdir)/master.c $(srcdir)/main.c
 
 TARFILES = $(srcdir)/README $(srcdir)/COPYING $(srcdir)/Makefile.in \
@@ -33,4 +33,5 @@ tar:
 attach.o: @srcdir@/attach.c @srcdir@/dtach.h config.h
 master.o: @srcdir@/master.c @srcdir@/dtach.h config.h
 main.o: @srcdir@/main.c @srcdir@/dtach.h config.h
+query_term_mode.o: query_term_mode.c
 
