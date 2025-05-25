@@ -1,7 +1,7 @@
-dtach
-=====
+🖥️ dtach
+========
 
-A light weight replacement for tmux,screen.  
+A light weight replacement for `tmux`, `screen`.  
 which not mess your scrollback.
 
 <br>
@@ -14,7 +14,7 @@ so I fork and store my changes here.
 
 <br>
 
-## What's New
+## ✨ What's New
 
 - Easy-to-use wrapper, use dtach like tmux, screen.  
 https://github.com/crigler/dtach/issues/24
@@ -27,9 +27,9 @@ https://github.com/crigler/dtach/issues/23
 
 <br>
 
-## Usage
+## 📚 Usage
 
-### dtach.sh
+### 📜 dtach.sh
 //create new session, named test  
 ```console
 $ dtach.sh new test
@@ -55,7 +55,7 @@ $ dtach.sh log test 20
 
 <br>
 
-### dtach.gum
+### 📜 dtach.gum
 A [gum](https://github.com/charmbracelet/gum) based interactive session chooser:
 
 //it will show you all sesions, choose by <kbd> ↑ </kbd> <kbd> ↓ </kbd>, confirm by <kbd> Enter </kbd>  
