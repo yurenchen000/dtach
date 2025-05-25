@@ -22,6 +22,9 @@ https://github.com/crigler/dtach/issues/24
 - Save & Show session output history (depends on script, unterm)  
 https://github.com/crigler/dtach/issues/24#issuecomment-2888560651
 
+- Custom bashrc at `~/.dtach_bashrc`,  with `DTACH_NAME` env  
+ can set independent bash_history or PS1 based on session name 
+
 - Allow dtach from altscreen like vim,htop.. (not corrupt the termianl)  
 https://github.com/crigler/dtach/issues/23
 
