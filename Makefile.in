@@ -35,3 +35,8 @@ master.o: @srcdir@/master.c @srcdir@/dtach.h config.h
 main.o: @srcdir@/main.c @srcdir@/dtach.h config.h
 query_term_mode.o: query_term_mode.c
 
+## unterm tool for stdout strip
+unterm: LDFLAGS += -Wl,-Bstatic -lvterm -Wl,-Bdynamic
+unterm: unterm.c
+	$(CC) $(CFLAGS) $< -o $@ $(LDFLAGS)
+
