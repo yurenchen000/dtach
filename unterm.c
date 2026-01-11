@@ -192,7 +192,7 @@ static void dump_cell(const VTermScreenCell *cell, const VTermScreenCell *prevce
   for(int i = 0; i < VTERM_MAX_CHARS_PER_CELL && cell->chars[i]; i++) {
     // char bytes[6] = {0};
     char bytes[6];
-    if(cell->chars[i]==-1) continue;
+    if(cell->chars[i]==(uint32_t)-1) continue;
 
     // int len = fill_utf8(cell->chars[i], bytes);
     // bytes[len] = 0;
@@ -240,6 +240,7 @@ void dump_row(int row)
 
 static int screen_sb_pushline(int cols, const VTermScreenCell *cells, void *user)
 {
+  (void)user;
   VTermScreenCell prevcell = { 0 };
   vterm_state_get_default_colors(vterm_obtain_state(vt), &prevcell.fg, &prevcell.bg);
 
@@ -255,6 +256,7 @@ static int screen_sb_pushline(int cols, const VTermScreenCell *cells, void *user
 
 static int screen_resize(int new_rows, int new_cols, void *user)
 {
+  (void)user;
   rows = new_rows;
   cols = new_cols;
   return 1;
