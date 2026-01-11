@@ -71,7 +71,10 @@ $ dtach.gum
 ## 🛠️ Build & Install
 
 ### build
-//0. build on ubuntu22+  (ubuntu18 need build libvterm from source: https://www.leonerd.org.uk/code/libvterm/
+
+
+
+//A. build on ubuntu22+  (ubuntu18 need build libvterm from source: https://www.leonerd.org.uk/code/libvterm/
 ```sh
 sudo apt install libvterm-dev # libvterm-dev 0.1.4 for unterm build
 
@@ -79,6 +82,11 @@ sudo apt install libvterm-dev # libvterm-dev 0.1.4 for unterm build
 make dtach
 make unterm
 ```
+
+OR 
+
+//B. download pre-built binary for ubuntu18+, amd64  
+https://github.com/yurenchen000/dtach/releases/
 
 
 ### install
@@ -93,6 +101,7 @@ sudo apt install gum      ## for gum, OR download from https://github.com/charmb
 sudo cp -pvi dtach unterm dtach.sh dtach.gum  /usr/local/bin/
 ```
 
+<br>
 
 ## ⚙️ Config
 
